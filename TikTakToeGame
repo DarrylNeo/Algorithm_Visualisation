@@ -3,19 +3,19 @@ import sys
 import time
 from pygame.locals import *
 
-#GUI
+# GUI
 
-XO = 'X'
+XO = 'x'
 
 winner = None
 
-Draw = None
+draw = None
 
 width = 400
 
 height = 400
 
-white = (255,255,255)
+white = (255, 255, 255)
 
 line_color = (0, 0, 0)
 
@@ -35,15 +35,15 @@ pg.display.set_caption("Tic Tac Toe Test")
 
 initiating_window = pg.image.load("tiktaktoecover.png")
 x_img = pg.image.load("x.png")
-y_img = pg.image.load("y.png")
+y_img = pg.image.load("o.png")
 
 initiating_window = pg.transform.scale(initiating_window, (width, height + 100))
 x_img = pg.transform.scale(x_img, (80, 80))
 y_img = pg.transform.scale(y_img, (80, 80))
 
-def game_initialisation():
 
-    screen.blit(initiating_window, (0,0))
+def game_initialisation():
+    screen.blit(initiating_window, (0, 0))
 
     pg.display.update()
     time.sleep(3)
@@ -57,32 +57,33 @@ def game_initialisation():
 
     draw_screen()
 
-def draw_screen():
 
+def draw_screen():
     global draw
 
     if winner is None:
         message = XO.upper() + "'s Turn"
     else:
-        message = winner.upper() + "has won !"
+        message = winner.upper() + " has won !"
     if draw:
         message = "Draw!"
 
     font = pg.font.Font(None, 30)
 
-    text = font.render(message, 1, (255,255,255))
+    text = font.render(message, 1, (255, 255, 255))
 
     screen.fill((0, 0, 0), (0, 400, 500, 100))
-    text_rect = text.get_rect(center = (width / 2, 500-50))
+    text_rect = text.get_rect(center=(width / 2, 500 - 50))
     screen.blit(text, text_rect)
     pg.display.update()
 
-#algorithm to check for winner
+
+# algorithm to check for winner
 
 def checking_win():
     global board, winner, draw
 
-    for row in range (0, 3):
+    for row in range(0, 3):
         if ((board[row][0] == board[row][1] == board[row][2]) and (board[row][0] is not None)):
             winner = board[row][0]
             pg.draw.line(screen, (250, 0, 0),
@@ -90,28 +91,28 @@ def checking_win():
                          (width, (row + 1) * height / 3 - height / 6), 4)
             break
 
-    for col in range (0, 3):
+    for col in range(0, 3):
         if ((board[0][col] == board[1][col] == board[2][col]) and (board[0][col] is not None)):
             winner = board[0][col]
             pg.draw.line(screen, (250, 0, 0),
                          ((col + 1) * width / 3 - width / 6, 0), ((col + 1) * width / 3 - width / 6, height), 4)
             break
 
-    #top left to bottom right diagonal win
+    # top left to bottom right diagonal win
     if (board[0][0] == board[1][1] == board[2][2]) and (board[0][0] is not None):
         winner = board[0][0]
         pg.draw.line(screen, (250, 70, 70), (50, 50), (350, 350), 4)
 
-    #top right to bottom left diagonal win
-    if (board[0][2] == board[1][1] == board [0][2]) and (board[0][2] is not None):
-        winner = board [0][2]
+    # top right to bottom left diagonal win
+    if (board[0][2] == board[1][1] == board[0][2]) and (board[0][2] is not None):
+        winner = board[0][2]
         pg.draw.line(screen, (250, 70, 70), (350, 50), (50, 350), 4)
 
     if (all([all(row) for row in board]) and winner is None):
         draw_screen()
 
-def TikTakToeBoard():
 
+def tik_tak_toe_board(row, col):
     global board, XO
 
     if row == 1:
@@ -127,45 +128,70 @@ def TikTakToeBoard():
         posy = 30
 
     if col == 2:
-        posy = height / 3 + 20
+        posy = height / 3 + 30
 
     if col == 3:
         posy = height / 3 * 2 + 30
 
     board[row - 1][col - 1] = XO
 
-    if (XO == 'X'):
+    if XO == 'x':
         screen.blit(x_img, (posy, posx))
         XO = 'o'
 
     else:
-        screen.blit(o_img, (posy, posx))
+        screen.blit(y_img, (posy, posx))
         XO = 'x'
     pg.display.update()
 
-def user_actions():
 
+def user_actions():
     x, y = pg.mouse.get_pos()
 
-    if (x < width / 3):
+    if x < (width / 3):
         col = 1
-    elif (x < width / 3 * 2):
+    elif x < (width / 3 * 2):
         col = 2
-    elif (x < width):
+    elif x < width:
         col = 3
     else:
         col = None
 
-    if (y < height / 3):
+    if y < (height / 3):
         row = 1
-    elif (y < height / 3 * 2):
+    elif y < (height / 3 * 2):
         row = 2
-    elif (y < height):
+    elif y < height:
         row = 3
     else:
         row = None
 
-    if (row and col and board[row-1][col-1] is None):
+    if row and col and (board[row - 1][col - 1] is None):
         global XO
-        TikTakToeBoard(row, col)
+        tik_tak_toe_board(row, col)
         checking_win()
+
+
+def game_reset():
+    global board, winner, XO, draw
+    time.sleep(3)
+    XO = 'x'
+    draw = False
+    game_initialisation()
+    winner = None
+    board = [[None] * 3, [None] * 3, [None] * 3]
+
+
+game_initialisation()
+
+while True:
+    for event in pg.event.get():
+        if event.type == QUIT:
+            pg.quit()
+            sys.exit()
+        elif event.type == MOUSEBUTTONDOWN:
+            user_actions()
+            if winner or draw:
+                game_reset()
+    pg.display.update()
+    CLOCK.tick(fps)
