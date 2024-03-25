@@ -1,26 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 
-"""
-An example implementation of the abstract Node class for use in MCTS
-
-If you run this file then you can play against the computer.
-
-A tic-tac-toe board is represented as a tuple of 9 values, each either None,
-True, or False, respectively meaning 'empty', 'X', and 'O'.
-
-The board is indexed by row:
-0 1 2
-3 4 5
-6 7 8
-
-For example, this game board
-O - X
-O X -
-X - -
-corrresponds to this tuple:
-(False, None, True, False, True, None, True, None, None)
-"""
 
 from collections import namedtuple
 from random import choice
@@ -28,11 +8,18 @@ from monte_carlo_tree_search import MCTS, Node
 
 _TTTB = namedtuple("TicTacToeBoard", "tup turn winner terminal")
 
-global id
 id = 0
 # Inheriting from a namedtuple is convenient because it makes the class
 # immutable and predefines __init__, __repr__, __hash__, __eq__, and others
 class TicTacToeBoard(_TTTB, Node):
+    def __new__(cls, tup, turn, winner, terminal):
+        global id
+        self = super(TicTacToeBoard, cls).__new__(cls, tup, turn, winner, terminal)
+        self.id = id
+        print(self.id)
+        id += 1
+        return self
+
     def find_children(board):
         if board.terminal:  # If the game is finished then no moves can be made
             return set()
@@ -69,7 +56,6 @@ class TicTacToeBoard(_TTTB, Node):
         winner = _find_winner(tup)
         is_terminal = (winner is not None) or not any(v is None for v in tup)
         newBoard = TicTacToeBoard(tup, turn, winner, is_terminal)
-        newBoard.createID()
         return newBoard
 
     def to_pretty_string(board):
@@ -82,15 +68,6 @@ class TicTacToeBoard(_TTTB, Node):
             + "\n".join(str(i + 1) + " " + " ".join(row) for i, row in enumerate(rows))
             + "\n"
         )
-    
-    def createID(self):
-        global id
-        try:
-            self.id
-        except AttributeError:
-            self.id = id
-            id += 1
-        print(self.id)
 
     def getID(self):
         return self.id
@@ -102,7 +79,6 @@ class TicTacToeBoard(_TTTB, Node):
 def play_game():
     tree = MCTS()
     board = new_tic_tac_toe_board()
-    board.createID()
     print(board.to_pretty_string())
     
     row_col = input("enter row,col: ")
@@ -111,18 +87,15 @@ def play_game():
     if board.tup[index] is not None:
         raise RuntimeError("Invalid move")
     board = board.make_move(index)
-    board.createID()
     print(board.to_pretty_string())
     """ if board.terminal:
         break """
     # You can train as you go, or only at the beginning.
     # Here, we train as we go, doing fifty rollouts each turn.
-    for _ in range(5):
+    for _ in range(3):
         tree.do_rollout(board)
-    print(len(tree.children))
     global tictactoeData
     tictactoeData = tree.export_to_format(tree, next(iter(tree.children.keys())))
-    print(tictactoeData)
     board = tree.choose(board)
     print(board.to_pretty_string())
     """ if board.terminal:

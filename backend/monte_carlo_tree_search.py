@@ -1,13 +1,6 @@
-"""
-A minimal implementation of Monte Carlo tree search (MCTS) in Python 3
-Luke Harold Miles, July 2019, Public Domain Dedication
-See also https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
-https://gist.github.com/qpwo/c538c6f73727e254fdc7fab81024f6e1
-"""
 from abc import ABC, abstractmethod
 from collections import defaultdict
 import math
-
 
 class MCTS:
     "Monte Carlo tree searcher. First rollout the tree then choose a move."
@@ -95,30 +88,20 @@ class MCTS:
 
         return max(self.children[node], key=uct)
     
-    def export_to_format(self, mcts, node, parent_id=None):
-        exported_data = {'name': node.getID(), 'attributes': {'reward': mcts.Q[node], 'visits': mcts.N[node]}}
+    def export_to_format(self, mcts, node):
+        exported_data = {'name': node.__str__(), 'attributes': {'reward': mcts.Q[node], 'visits': mcts.N[node]}}
         for key in mcts.children.keys():
-            if node.getID() == key.getID():
-                print(node.getID())
+            if node.__str__() == key.__str__():
                 exported_data['children'] = []
                 for child in mcts.children[key]:
-                    exported_data['children'].append(self.export_to_format(mcts, child, node.__str__()))
+                    exported_data['children'].append(self.export_to_format(mcts, child))
                 break  # Stop searching once we've found the node
         
         return exported_data
 
-""" # Example usage:
-mcts = MCTS()  # Assuming MCTS object is initialized somewhere
-root_node = Node()  # Assuming a root node exists
-exported_data = export_to_format(mcts, root_node) """
 
 
 class Node(ABC):
-    """
-    A representation of a single board state.
-    MCTS works by constructing a tree of these Nodes.
-    Could be e.g. a chess or checkers board state.
-    """
 
     @abstractmethod
     def find_children(self):
@@ -149,7 +132,3 @@ class Node(ABC):
     def __eq__(node1, node2):
         "Nodes must be comparable"
         return True
-    
-    @abstractmethod
-    def getID():
-        return int
