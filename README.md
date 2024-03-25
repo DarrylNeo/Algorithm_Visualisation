@@ -11,7 +11,7 @@
 4. In command line or powershell, activate virtual environment `./venv/bin/activate`
 
 5. Install flask in virtual environment `pip install flask`
-6. Install cors in virtual environment `pip install cors`
+6. Install cors in virtual environment `pip install flask_cors`
 
 ## `Frontend`
 
