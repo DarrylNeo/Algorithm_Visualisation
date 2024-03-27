@@ -2,22 +2,37 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from monte_carlo_tree_search import MCTS
-from tictactoe import TicTacToe, TicTacToeBoard
+from tictactoe import TicTacToe, TicTacToeBoard, Node
 
 app = Flask(__name__)
 CORS(app)
 
-# Runs MCTS tree on set domain
-def run():
-    tree = MCTS()
-    domain = TicTacToe()
-    domain.iterate(tree, 2)
-    return domain.export_tree()
+global tree
+tree = None
 
-# Passes current MCTS tree
+# Runs MCTS tree on set domain
+def create():
+    global tree
+
+    domain = TicTacToe()
+    root = domain.get_root()
+    tree = MCTS(root)
+    tree.iterate(1)
+    return tree.export()
+
+# Creates and responds with MCTS tree
 @app.route('/api/tree', methods=['GET'])
-def get_tictactoe_data():
-    return jsonify(run())
+def create_tree():
+    return jsonify(create())
+
+# Conducts iteration on and responds with current MCTS tree
+@app.route('/api/tree/iterate', methods=['GET'])
+def iterate_tree():
+    if tree is not None:
+        tree.iterate(1)
+        return jsonify(tree.export())
+    else:
+        return 'Tree not created yet', 400
 
 # First function that runs
 if __name__ == '__main__':

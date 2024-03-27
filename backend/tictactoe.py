@@ -89,18 +89,16 @@ class TicTacToeBoard(_TTTB, Node):
     
 class TicTacToe():
     def __init__(self):
+        global id
+        id = 0
+
         self.board = TicTacToeBoard(tup=(None,) * 9, turn=True, winner=None, terminal=False)
+
         row = 1
         col = 1
         index = 3 * (row - 1) + (col - 1)
-        print("TEST")
         if self.board.tup[index] is not None:
             raise RuntimeError("Invalid move")
 
-    def iterate(self, tree, iterations):
-        self.tree = tree
-        for _ in range(iterations):
-            self.tree.do_rollout(self.board)
-    
-    def export_tree(self):
-        return self.tree.export_to_format(self.tree, next(iter(self.tree.children.keys())))
+    def get_root(self):
+        return self.board

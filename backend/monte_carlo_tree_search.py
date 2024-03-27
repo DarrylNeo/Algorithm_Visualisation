@@ -5,11 +5,12 @@ import math
 class MCTS:
     "Monte Carlo tree searcher. First rollout the tree then choose a move."
 
-    def __init__(self, exploration_weight=1):
+    def __init__(self, domain, exploration_weight=1):
         self.Q = defaultdict(int)  # total reward of each node
         self.N = defaultdict(int)  # total visit count for each node
         self.children = dict()  # children of each node
         self.exploration_weight = exploration_weight
+        self.domain = domain
 
     def choose(self, node):
         "Choose the best successor of node. (Choose a move in the game)"
@@ -98,6 +99,13 @@ class MCTS:
                 break  # Stop searching once we've found the node
         
         return exported_data
+    
+    def iterate(self, iterations):
+        for _ in range(iterations):
+            self.do_rollout(self.domain)
+
+    def export(self):
+        return self.export_to_format(self, next(iter(self.children.keys())))
 
 
 
