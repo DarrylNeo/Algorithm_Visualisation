@@ -5,6 +5,7 @@ from monte_carlo_tree_search import Node
 _TTTB = namedtuple("TicTacToeBoard", "tup turn winner terminal")
 
 id = 0
+
 # Inheriting from a namedtuple is convenient because it makes the class
 # immutable and predefines __init__, __repr__, __hash__, __eq__, and others
 class TicTacToeBoard(_TTTB, Node):
@@ -85,3 +86,21 @@ class TicTacToeBoard(_TTTB, Node):
         
     def __str__(self):
         return self.id
+    
+class TicTacToe():
+    def __init__(self):
+        self.board = TicTacToeBoard(tup=(None,) * 9, turn=True, winner=None, terminal=False)
+        row = 1
+        col = 1
+        index = 3 * (row - 1) + (col - 1)
+        print("TEST")
+        if self.board.tup[index] is not None:
+            raise RuntimeError("Invalid move")
+
+    def iterate(self, tree, iterations):
+        self.tree = tree
+        for _ in range(iterations):
+            self.tree.do_rollout(self.board)
+    
+    def export_tree(self):
+        return self.tree.export_to_format(self.tree, next(iter(self.tree.children.keys())))
